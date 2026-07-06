@@ -1,4 +1,4 @@
-.PHONY: up setup down dev install build env db-up db-wait db-migrate db-migrate-down db-migrate-create db-seed db-seed-force
+.PHONY: up setup down dev install build test env db-up db-wait db-migrate db-migrate-down db-migrate-create db-seed db-seed-force
 
 DATABASE_URL ?= postgres://presight:presight@localhost:5432/presight
 export DATABASE_URL
@@ -42,6 +42,9 @@ dev:
 
 build:
 	npm run build
+
+test:
+	npm test
 
 down:
 	docker compose down

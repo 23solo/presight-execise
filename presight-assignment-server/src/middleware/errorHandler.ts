@@ -18,7 +18,7 @@ export function errorHandler(
   const message = isAppError ? error.message : "Internal server error";
   const details = isAppError ? error.details : undefined;
 
-  if (statusCode >= 500) {
+  if (!isAppError) {
     console.error(error);
   }
 

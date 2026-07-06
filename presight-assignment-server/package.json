@@ -7,6 +7,9 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:migrate": "node-pg-migrate up --migrations-dir migrations",
@@ -31,7 +34,10 @@
     "@types/pg": "^8.15.4",
     "node-pg-migrate": "^7.9.1",
     "@faker-js/faker": "^9.9.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4",
     "tsx": "^4.19.4",
-    "typescript": "~6.0.2"
+    "typescript": "~6.0.2",
+    "vitest": "^3.2.4"
   }
 }
