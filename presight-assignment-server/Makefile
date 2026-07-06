@@ -3,6 +3,7 @@
 DATABASE_URL ?= postgres://presight:presight@localhost:5432/presight
 export DATABASE_URL
 
+
 # Bootstrap everything and start the dev server
 up: setup dev
 
