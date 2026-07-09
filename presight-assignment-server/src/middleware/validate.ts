@@ -17,16 +17,16 @@ function formatZodError(error: ZodError) {
 }
 
 export function validate(schemas: RequestSchemas) {
-  return (req: Request, _res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
       if (schemas.body) {
-        req.body = schemas.body.parse(req.body);
+        res.locals.validatedBody = schemas.body.parse(req.body);
       }
       if (schemas.query) {
-        req.query = schemas.query.parse(req.query);
+        res.locals.validatedQuery = schemas.query.parse(req.query);
       }
       if (schemas.params) {
-        req.params = schemas.params.parse(req.params);
+        res.locals.validatedParams = schemas.params.parse(req.params);
       }
       next();
     } catch (error) {

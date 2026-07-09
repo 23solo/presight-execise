@@ -4,6 +4,7 @@ import { vi } from "vitest";
 type MockResponse = Response & {
   statusCode: number;
   body: unknown;
+  locals: Record<string, unknown>;
 };
 
 export function createMockRequest(overrides: Partial<Request> = {}): Request {
@@ -21,6 +22,7 @@ export function createMockResponse(): MockResponse {
   const res = {
     statusCode: 200,
     body: undefined as unknown,
+    locals: {} as Record<string, unknown>,
     status(code: number) {
       this.statusCode = code;
       return this;

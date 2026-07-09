@@ -8,6 +8,7 @@ import {
   requestLogger,
 } from "./middleware/index.js";
 import { healthRoutes } from "./routes/healthRoutes.js";
+import { apiRoutes } from "./routes/apiRoutes.js";
 
 export function createApp() {
   const app = express();
@@ -19,6 +20,7 @@ export function createApp() {
   app.use(requestLogger);
 
   app.use(healthRoutes);
+  app.use("/api", apiRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

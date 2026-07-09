@@ -22,7 +22,7 @@ describe("validate middleware", () => {
 
     middleware(req, res, next);
 
-    expect(req.query).toEqual({ page: 2 });
+    expect(res.locals.validatedQuery).toEqual({ page: 2 });
     expect(next).toHaveBeenCalledOnce();
   });
 
