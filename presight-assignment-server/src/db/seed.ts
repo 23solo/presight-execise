@@ -46,6 +46,33 @@ const HOBBIES = [
   "Archery",
 ];
 
+const PROFESSIONS = [
+  "Product Designer",
+  "Software Engineer",
+  "Data Scientist",
+  "Marketing Manager",
+  "Architect",
+  "Photographer",
+  "Financial Analyst",
+  "UX Researcher",
+  "Civil Engineer",
+  "Physician",
+  "Teacher",
+  "Journalist",
+  "Chef",
+  "Lawyer",
+  "Sales Director",
+  "Illustrator",
+  "Product Manager",
+  "Nurse",
+  "Economist",
+  "Filmmaker",
+  "Mechanical Engineer",
+  "Copywriter",
+  "Consultant",
+  "Entrepreneur",
+];
+
 const NATIONALITIES = [
   "American",
   "British",
@@ -121,6 +148,7 @@ async function insertUserBatch(
   const avatars: string[] = [];
   const firstNames: string[] = [];
   const lastNames: string[] = [];
+  const professions: string[] = [];
   const ages: number[] = [];
   const nationalities: string[] = [];
 
@@ -131,16 +159,17 @@ async function insertUserBatch(
     avatars.push(`https://i.pravatar.cc/150?u=${faker.string.uuid()}`);
     firstNames.push(firstName);
     lastNames.push(lastName);
+    professions.push(faker.helpers.arrayElement(PROFESSIONS));
     ages.push(faker.number.int({ min: 18, max: 80 }));
     nationalities.push(faker.helpers.arrayElement(NATIONALITIES));
   }
 
   const usersResult = await client.query<{ id: number }>(
-    `INSERT INTO users (avatar, first_name, last_name, age, nationality)
+    `INSERT INTO users (avatar, first_name, last_name, profession, age, nationality)
      SELECT *
-     FROM UNNEST($1::text[], $2::text[], $3::text[], $4::int[], $5::text[])
+     FROM UNNEST($1::text[], $2::text[], $3::text[], $4::text[], $5::int[], $6::text[])
      RETURNING id`,
-    [avatars, firstNames, lastNames, ages, nationalities],
+    [avatars, firstNames, lastNames, professions, ages, nationalities],
   );
 
   const userIds = usersResult.rows.map((row) => row.id);

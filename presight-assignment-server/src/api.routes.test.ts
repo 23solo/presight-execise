@@ -33,6 +33,7 @@ describe("api routes", () => {
           avatar: "https://example.com/1.jpg",
           first_name: "Anna",
           last_name: "Müller",
+          profession: "Software Engineer",
           age: 30,
           nationality: "German",
           hobbies: ["Reading"],

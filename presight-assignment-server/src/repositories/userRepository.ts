@@ -3,6 +3,8 @@ import { findPage } from "../pagination/index.js";
 import type { Page, Pageable } from "../pagination/types.js";
 import type { FacetItem, User, UserFilters } from "../types/user.js";
 import {
+  buildHobbyFacetSpecification,
+  buildNationalityFacetSpecification,
   buildUserFilterSpecification,
   toWhereClause,
   USER_SORT_COLUMN_MAP,
@@ -14,6 +16,7 @@ export type UserRecord = {
   avatar: string;
   first_name: string;
   last_name: string;
+  profession: string;
   age: number;
   nationality: string;
 };
@@ -54,7 +57,7 @@ export const userRepository = {
   },
 
   async findTopNationalities(filters: UserFilters): Promise<FacetItem[]> {
-    const where = toWhereClause(buildUserFilterSpecification(filters));
+    const where = toWhereClause(buildNationalityFacetSpecification(filters));
     const sql = applyWhereClause(userQueries.selectTopNationalities, where.sql);
 
     const result = await pool.query<FacetItem>(sql, where.values);
@@ -62,7 +65,7 @@ export const userRepository = {
   },
 
   async findTopHobbies(filters: UserFilters): Promise<FacetItem[]> {
-    const where = toWhereClause(buildUserFilterSpecification(filters));
+    const where = toWhereClause(buildHobbyFacetSpecification(filters));
     const sql = applyWhereClause(userQueries.selectTopHobbies, where.sql);
 
     const result = await pool.query<FacetItem>(sql, where.values);

@@ -55,6 +55,26 @@ export function buildUserFilterSpecification(
   );
 }
 
+export function buildNationalityFacetSpecification(
+  filters: UserFilters,
+  userAlias = "u",
+): SpecificationInterface {
+  return Specification.all(
+    whereIlikeAny([`${userAlias}.first_name`, `${userAlias}.last_name`], filters.q),
+    whereHasAllHobbies(userAlias, filters.hobbies),
+  );
+}
+
+export function buildHobbyFacetSpecification(
+  filters: UserFilters,
+  userAlias = "u",
+): SpecificationInterface {
+  return Specification.all(
+    whereIlikeAny([`${userAlias}.first_name`, `${userAlias}.last_name`], filters.q),
+    whereIn(`${userAlias}.nationality`, filters.nationalities),
+  );
+}
+
 export function toWhereClause(specification: SpecificationInterface): {
   sql: string;
   values: unknown[];

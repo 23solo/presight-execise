@@ -23,4 +23,5 @@ export const config = {
         ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false" }
         : undefined,
   },
+  apiDelayMs: Number(process.env.API_DELAY_MS) || 0,
 };

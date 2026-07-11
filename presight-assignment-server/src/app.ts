@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import { config } from "./config.js";
 import {
+  artificialDelay,
   errorHandler,
   notFoundHandler,
   requestLogger,
@@ -20,7 +21,7 @@ export function createApp() {
   app.use(requestLogger);
 
   app.use(healthRoutes);
-  app.use("/api", apiRoutes);
+  app.use("/api", artificialDelay(config.apiDelayMs), apiRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

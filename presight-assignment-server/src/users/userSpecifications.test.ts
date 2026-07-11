@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildHobbyFacetSpecification,
+  buildNationalityFacetSpecification,
   buildUserFilterSpecification,
   whereHasAllHobbies,
 } from "./userSpecifications.js";
@@ -51,5 +53,30 @@ describe("userSpecifications", () => {
     );
 
     expect(fragment).toBeNull();
+  });
+
+  it("excludes nationality filters from nationality facet counts", () => {
+    const fragment = buildNationalityFacetSpecification({
+      q: "ann",
+      nationalities: ["German"],
+      hobbies: ["Reading"],
+    }).toSql();
+
+    expect(fragment?.sql).toContain("u.first_name ILIKE");
+    expect(fragment?.sql).toContain("COUNT(DISTINCT h.name)");
+    expect(fragment?.sql).not.toContain("u.nationality IN");
+    expect(fragment?.values).toEqual(["%ann%", "%ann%", "Reading", 1]);
+  });
+
+  it("excludes hobby filters from hobby facet counts", () => {
+    const fragment = buildHobbyFacetSpecification({
+      q: "ann",
+      nationalities: ["German", "French"],
+      hobbies: ["Reading", "Hiking"],
+    }).toSql();
+
+    expect(fragment?.sql).toContain("u.nationality IN");
+    expect(fragment?.sql).not.toContain("COUNT(DISTINCT h.name)");
+    expect(fragment?.values).toEqual(["%ann%", "%ann%", "German", "French"]);
   });
 });

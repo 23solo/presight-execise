@@ -2,7 +2,7 @@ export const userQueries = {
   fromUsers: "users u",
 
   selectUserColumns:
-    "u.id, u.avatar, u.first_name, u.last_name, u.age, u.nationality",
+    "u.id, u.avatar, u.first_name, u.last_name, u.profession, u.age, u.nationality",
 
   selectHobbiesByUserIds: `
     SELECT uh.user_id, h.name
