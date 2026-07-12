@@ -10,6 +10,8 @@ How to run this User Directory implementation.
 Requires **Docker**, **Node 22+**, and **Make**.
 
 ```bash
+git clone https://github.com/23solo/presight-execise.git
+cd presight-execise
 make up
 ```
 
