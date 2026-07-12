@@ -1,7 +1,7 @@
-.PHONY: up setup down help
+.PHONY: up down help
 
-# Prefer the root Makefile for the full app. These targets stay for server-only work.
-up setup down:
+# Prefer the repo root Makefile.
+up down:
 	@$(MAKE) -C .. $@
 
 help:

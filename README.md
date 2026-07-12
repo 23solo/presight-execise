@@ -18,7 +18,7 @@ How to run this User Directory implementation locally.
 
 ## Quick start
 
-Requires **Docker**, **Node 22+**, and **Make**.
+Requires **Docker** and **Make**.
 
 ```bash
 git clone https://github.com/23solo/presight-execise.git
@@ -26,77 +26,38 @@ cd presight-execise
 make up
 ```
 
-That command will:
+That builds and starts **Postgres**, the **API**, and the **client** as containers. The API container runs migrations and seeds on startup.
 
-1. Copy env files if missing  
-2. Install client + server dependencies  
-3. Start Postgres in Docker  
-4. Run migrations and seed (~5,000 users)  
-5. Start the API (`http://localhost:3001`) and Vite client (`http://localhost:5173`) with hot reload  
-
-Stop the app servers with **Ctrl+C**. Stop Postgres with:
+| Service | URL |
+|---------|-----|
+| Client | http://localhost:18080 |
+| API | http://localhost:13001 |
+| Postgres | `localhost:15432` (user/pass/db: `presight`) |
 
 ```bash
-make down
+make logs    # follow logs
+make down    # stop containers (keeps DB volume)
 ```
 
 ### Make targets
 
 | Command | What it does |
 |---------|----------------|
-| `make up` | Full local dev stack (DB + API + client) |
-| `make setup` | Install, DB, migrate, seed — no servers |
-| `make db-migrate` | Run DB migrations |
-| `make db-seed` | Seed users (skips if data already exists) |
-| `make db-seed-force` | Truncate and reseed |
-| `make docker-up` | Run **everything** in Docker Compose |
-| `make docker-down` | Stop the full Docker stack |
+| `make up` | Build & start postgres + api + client |
+| `make down` | Stop containers (keeps Postgres data) |
+| `make logs` | Follow container logs |
+| `make build` | Build images only |
 | `make help` | List targets |
 
-## Docker Compose (full stack)
+## Manual Docker commands
 
-Runs Postgres, API, and the built client (nginx) locally.
-
-### With Make
+Same as `make up`, without Make. Run from the repo root (`presight-execise/`):
 
 ```bash
-make docker-up
-```
-
-```bash
-make docker-down
-```
-
-### Manual Docker commands
-
-Same stack as `make docker-up`, without Make. Run from the repo root (`presight-execise/`):
-
-```bash
-# Build images
-docker compose build
-
-# Start Postgres, API, and client in the background
-docker compose up -d
-
-# Or build and start in one step
 docker compose up --build -d
-
-# Follow logs (optional)
 docker compose logs -f
-
-# Stop and remove containers (keeps the Postgres volume)
 docker compose down
 ```
-
-After it’s up:
-
-| Service | URL |
-|---------|-----|
-| Client | http://localhost:8080 |
-| API | http://localhost:3001 |
-| Postgres | `localhost:5432` (user/pass/db: `presight`) |
-
-The client nginx proxies `/api` to the API container. On first start the API entrypoint migrates and seeds automatically.
 
 Postgres data is stored in the Docker volume `postgres_data`, so `docker compose down` keeps your DB. To wipe data as well:
 
@@ -104,46 +65,14 @@ Postgres data is stored in the Docker volume `postgres_data`, so `docker compose
 docker compose down -v
 ```
 
-## Manual setup (without Make)
-
-```bash
-# 1. Env
-cp presight-assignment-server/.env.example presight-assignment-server/.env
-
-# 2. Database
-docker compose up -d postgres
-
-# 3. Server
-cd presight-assignment-server
-npm install
-npm run db:migrate
-npm run db:seed
-npm run dev
-
-# 4. Client (another terminal)
-cd presight-assignment-client
-npm install
-npm run dev
-```
-
-Vite proxies `/api` to `http://localhost:3001` when `VITE_API_BASE_URL` is empty.
-
 ## Database seeding
 
-Seed script: `presight-assignment-server/src/db/seed.ts`
+Seeding runs automatically inside the API container on start (`docker-entrypoint.sh`), via `presight-assignment-server/src/db/seed.ts`. It skips if users already exist.
 
-```bash
-make db-seed              # no-op if users already exist
-make db-seed-force        # wipe + reseed
-# or:
-cd presight-assignment-server && npm run db:seed
-SEED_FORCE=true npm run db:seed
-```
-
-Defaults (overridable in `.env`):
+Defaults (compose env):
 
 - `SEED_USER_COUNT=5000`
-- `SEED_FORCE=false`
+- `SEED_FORCE=false` (set `true` and recreate the API container to wipe + reseed)
 
 Schema lives in `presight-assignment-server/migrations/` (`users`, `hobbies`, `user_hobbies`).
 
