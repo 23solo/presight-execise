@@ -102,10 +102,10 @@ export function PeoplePage() {
   const debouncedSearch = useDebouncedValue(searchDraft, 300)
 
   useEffect(() => {
-    if (debouncedSearch !== filters.q) {
+    if (debouncedSearch === searchDraft && debouncedSearch !== filters.q) {
       updateFilters({ q: debouncedSearch })
     }
-  }, [debouncedSearch, filters.q, updateFilters])
+  }, [debouncedSearch, searchDraft, filters.q, updateFilters])
 
   useEffect(() => {
     if (!scrollElement) {
@@ -149,11 +149,13 @@ export function PeoplePage() {
 
   const clearSearch = () => {
     setSearchDraft('')
+    setCommittedSearch('')
     updateFilters({ q: '' })
   }
 
   const clearAll = () => {
     setSearchDraft('')
+    setCommittedSearch('')
     clearFilters()
   }
 
@@ -298,7 +300,7 @@ export function PeoplePage() {
           onClose={() => setFilterSheetOpen(false)}
           onToggleNationality={toggleNationality}
           onToggleHobby={toggleHobby}
-          onClearAll={clearFilters}
+          onClearAll={clearAll}
         />
       ) : null}
     </div>
