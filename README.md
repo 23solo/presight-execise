@@ -1,3 +1,150 @@
+# Setup & local development
+
+How to run this User Directory implementation.
+
+> **Database:** **PostgreSQL** is used instead of SQLite (same schema ideas, Docker-friendly).  
+> The original assignment brief is below.
+
+## Quick start
+
+Requires **Docker**, **Node 22+**, and **Make**.
+
+```bash
+make up
+```
+
+That command will:
+
+1. Copy env files if missing  
+2. Install client + server dependencies  
+3. Start Postgres in Docker  
+4. Run migrations and seed (~5,000 users)  
+5. Start the API (`http://localhost:3001`) and Vite client (`http://localhost:5173`) with hot reload  
+
+Stop the app servers with **Ctrl+C**. Stop Postgres with:
+
+```bash
+make down
+```
+
+### Make targets
+
+| Command | What it does |
+|---------|----------------|
+| `make up` | Full local dev stack (DB + API + client) |
+| `make setup` | Install, DB, migrate, seed — no servers |
+| `make db-migrate` | Run DB migrations |
+| `make db-seed` | Seed users (skips if data already exists) |
+| `make db-seed-force` | Truncate and reseed |
+| `make docker-up` | Run **everything** in Docker Compose |
+| `make docker-down` | Stop the full Docker stack |
+| `make help` | List targets |
+
+## Docker Compose (full stack)
+
+Runs Postgres, API, and the built client (nginx) locally.
+
+### With Make
+
+```bash
+make docker-up
+```
+
+```bash
+make docker-down
+```
+
+### Manual Docker commands
+
+Same stack as `make docker-up`, without Make. Run from the repo root (`presight-execise/`):
+
+```bash
+# Build images
+docker compose build
+
+# Start Postgres, API, and client in the background
+docker compose up -d
+
+# Or build and start in one step
+docker compose up --build -d
+
+# Follow logs (optional)
+docker compose logs -f
+
+# Stop and remove containers (keeps the Postgres volume)
+docker compose down
+```
+
+After it’s up:
+
+| Service | URL |
+|---------|-----|
+| Client | http://localhost:8080 |
+| API | http://localhost:3001 |
+| Postgres | `localhost:5432` (user/pass/db: `presight`) |
+
+The client nginx proxies `/api` to the API container. On first start the API entrypoint migrates and seeds automatically.
+
+Postgres data is stored in the Docker volume `postgres_data`, so `docker compose down` keeps your DB. To wipe data as well:
+
+```bash
+docker compose down -v
+```
+
+## Manual setup (without Make)
+
+```bash
+# 1. Env
+cp presight-assignment-server/.env.example presight-assignment-server/.env
+
+# 2. Database
+docker compose up -d postgres
+
+# 3. Server
+cd presight-assignment-server
+npm install
+npm run db:migrate
+npm run db:seed
+npm run dev
+
+# 4. Client (another terminal)
+cd presight-assignment-client
+npm install
+npm run dev
+```
+
+Vite proxies `/api` to `http://localhost:3001` when `VITE_API_BASE_URL` is empty.
+
+## Database seeding
+
+Seed script: `presight-assignment-server/src/db/seed.ts`
+
+```bash
+make db-seed              # no-op if users already exist
+make db-seed-force        # wipe + reseed
+# or:
+cd presight-assignment-server && npm run db:seed
+SEED_FORCE=true npm run db:seed
+```
+
+Defaults (overridable in `.env`):
+
+- `SEED_USER_COUNT=5000`
+- `SEED_FORCE=false`
+
+Schema lives in `presight-assignment-server/migrations/` (`users`, `hobbies`, `user_hobbies`).
+
+## API overview
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/api/users` | Paginated, filtered, sorted users |
+| `GET` | `/api/facets` | Top 20 hobbies & nationalities for current filters |
+| `GET` | `/api/insights` | Extra directory insights |
+| `GET` | `/healthz` | Health check |
+
+---
+
 # Presight Frontend Exercise
 
 Build a small full-stack user directory application. The goal is to evaluate how you design a searchable, filterable, paginated UI backed by persisted data and clear API boundaries.
