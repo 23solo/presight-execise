@@ -107,6 +107,21 @@ export function PeoplePage() {
     }
   }, [debouncedSearch, filters.q, updateFilters])
 
+  useEffect(() => {
+    if (!scrollElement) {
+      return
+    }
+
+    scrollElement.scrollTop = 0
+  }, [
+    scrollElement,
+    filters.q,
+    filters.sort,
+    filters.order,
+    filters.nationalities.join('\0'),
+    filters.hobbies.join('\0'),
+  ])
+
   const {
     users,
     facets,
@@ -164,6 +179,14 @@ export function PeoplePage() {
     <DirectoryStatePanel variant="empty" onAction={clearAll} />
   ) : (
     <UserList
+      key={[
+        filters.q,
+        filters.sort,
+        filters.order,
+        filters.nationalities.join(','),
+        filters.hobbies.join(','),
+        listColumns,
+      ].join('|')}
       scrollElement={scrollElement}
       users={users}
       loading={loading}

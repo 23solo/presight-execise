@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import type { AgeBucketStat, FacetItem, InsightsOverview } from '../../types/api'
 
 export function StatCard({
@@ -164,6 +165,27 @@ export function InsightsDetailModal({
   onClose,
   onRetry,
 }: InsightsDetailModalProps) {
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open, onClose])
+
   if (!open) {
     return null
   }
@@ -171,7 +193,7 @@ export function InsightsDetailModal({
   return (
     <div className="modal-backdrop open" onClick={onClose} role="presentation">
       <div
-        className="modal insights-modal scrollbar-thin"
+        className="modal insights-modal"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -191,7 +213,7 @@ export function InsightsDetailModal({
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body scrollbar-thin">
           {loading ? (
             <div className="stat-cards">
               {Array.from({ length: 4 }).map((_, index) => (

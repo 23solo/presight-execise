@@ -271,7 +271,9 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 16, 0.5);
+  background: rgba(10, 10, 16, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,13 +284,24 @@
 .modal {
   width: min(920px, 100%);
   max-height: min(88vh, 900px);
-  background: var(--surface);
+  background: var(--bg-app);
   border: 1px solid var(--border);
   border-radius: 24px;
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
+}
+
+.canvas[data-theme='light'] .modal,
+.app[data-theme='light'] .modal {
+  background: #ffffff;
+}
+
+.canvas[data-theme='dark'] .modal,
+.app[data-theme='dark'] .modal {
+  background: #12151d;
 }
 
 .modal-head {
@@ -298,6 +311,11 @@
   gap: 16px;
   padding: 22px 24px 12px;
   border-bottom: 1px solid var(--border);
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: inherit;
 }
 
 .modal-head h2 {
@@ -313,8 +331,11 @@
 }
 
 .modal-body {
+  flex: 1;
+  min-height: 0;
   padding: 20px 24px 24px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .insights-modal-error {
@@ -959,12 +980,23 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 200px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
   border-radius: 14px;
   box-shadow: var(--shadow-lg);
   padding: 8px;
-  z-index: 30;
+  z-index: 40;
+  isolation: isolate;
+}
+
+.canvas[data-theme='light'] .sort-menu,
+.app[data-theme='light'] .sort-menu {
+  background: #ffffff;
+}
+
+.canvas[data-theme='dark'] .sort-menu,
+.app[data-theme='dark'] .sort-menu {
+  background: #161a24;
 }
 
 .sort-menu-divider {
@@ -1449,13 +1481,45 @@
   height: 54px;
 }
 
+.avatar-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 55%, var(--surface-2)),
+    color-mix(in srgb, var(--purple) 45%, var(--surface-2))
+  );
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: opacity 0.2s var(--ease);
+}
+
+.avatar-fallback.is-hidden {
+  opacity: 0;
+}
+
 .avatar-image {
+  position: relative;
   width: 54px;
   height: 54px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.avatar-image.is-loaded {
+  opacity: 1;
 }
 
 .avatar-flag {
@@ -1681,9 +1745,14 @@
   }
 
   .modal.insights-modal {
-    background: color-mix(in srgb, var(--surface) 96%, transparent);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: #12151d;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .canvas[data-theme='light'] .modal.insights-modal,
+  .app[data-theme='light'] .modal.insights-modal {
+    background: #ffffff;
   }
 
   .inline-error-banner {
@@ -1725,9 +1794,45 @@
 
   .modal {
     width: 100%;
-    max-height: 92vh;
-    max-height: 92dvh;
+    height: min(92vh, 100%);
+    height: min(92dvh, 100%);
+    max-height: min(92vh, 100%);
+    max-height: min(92dvh, 100%);
     border-radius: 24px 24px 0 0;
+  }
+
+  .modal-head {
+    padding:
+      max(16px, env(safe-area-inset-top))
+      18px
+      12px;
+  }
+
+  .modal-head .btn.ghost {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    font-size: 18px;
+  }
+
+  .modal-head h2 {
+    font-size: 20px;
+  }
+
+  .modal-body {
+    padding: 16px 18px calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .insights-modal .hist {
+    height: 160px;
+    margin-bottom: 8px;
+  }
+
+  .insights-modal .ins-panel:last-child {
+    margin-bottom: 12px;
   }
 
   .ins-wrap {

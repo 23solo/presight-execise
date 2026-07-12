@@ -92,7 +92,18 @@ function GridUserList({
   hasMore,
   onLoadMore,
   columns,
-}: Required<Pick<UserListProps, 'scrollElement' | 'users' | 'loading' | 'loadingMore' | 'hasMore' | 'onLoadMore' | 'columns'>>) {
+}: Required<
+  Pick<
+    UserListProps,
+    | 'scrollElement'
+    | 'users'
+    | 'loading'
+    | 'loadingMore'
+    | 'hasMore'
+    | 'onLoadMore'
+    | 'columns'
+  >
+>) {
   const sentinelRef = useRef<HTMLDivElement>(null)
   const rowCount = Math.ceil(users.length / columns) || 0
 
@@ -100,15 +111,29 @@ function GridUserList({
     count: rowCount,
     getScrollElement: () => scrollElement,
     estimateSize: () => ROW_HEIGHT,
-    overscan: 4,
+    overscan: 6,
+    getItemKey: (index) => {
+      const startIndex = index * columns
+      const rowUsers = users.slice(startIndex, startIndex + columns)
+      return rowUsers.map((user) => user.id).join('-') || index
+    },
   })
 
   useLayoutEffect(() => {
-    if (scrollElement) {
-      virtualizer.measure()
+    if (!scrollElement) {
+      return
     }
-  }, [scrollElement, virtualizer, rowCount, users.length, columns])
 
+    scrollElement.scrollTop = 0
+    virtualizer.scrollToOffset(0)
+    virtualizer.measure()
+    // Remounted via filter key from PeoplePage; only reset once per list instance.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only reset
+  }, [scrollElement])
+
+  useLayoutEffect(() => {
+    virtualizer.measure()
+  }, [virtualizer, rowCount, users.length])
   useInfiniteScroll({
     scrollElement,
     sentinelRef,
@@ -120,6 +145,8 @@ function GridUserList({
     itemCount: users.length,
   })
 
+  const virtualItems = virtualizer.getVirtualItems()
+
   return (
     <div
       className="user-list user-list-grid"
@@ -127,9 +154,11 @@ function GridUserList({
     >
       <div
         className="virtual-grid"
-        style={{ height: `${virtualizer.getTotalSize()}px` }}
+        style={{
+          height: `${Math.max(virtualizer.getTotalSize(), rowCount * ROW_HEIGHT)}px`,
+        }}
       >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
+        {virtualItems.map((virtualRow) => {
           const startIndex = virtualRow.index * columns
           const rowUsers = users.slice(startIndex, startIndex + columns)
 
@@ -139,7 +168,9 @@ function GridUserList({
               key={virtualRow.key}
               data-index={virtualRow.index}
               ref={virtualizer.measureElement}
-              style={{ transform: `translateY(${virtualRow.start}px)` }}
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
             >
               {rowUsers.map((user) => (
                 <UserCard user={user} key={user.id} />
@@ -157,11 +188,11 @@ function GridUserList({
         </div>
       ) : null}
       <div className="grid-footer">
-        {hasMore && !loadingMore ? (
-          'Scroll to load more'
-        ) : !hasMore && users.length > 0 ? (
-          "You've reached the end of the directory"
-        ) : null}
+        {hasMore && !loadingMore
+          ? 'Scroll to load more'
+          : !hasMore && users.length > 0
+            ? "You've reached the end of the directory"
+            : null}
       </div>
     </div>
   )

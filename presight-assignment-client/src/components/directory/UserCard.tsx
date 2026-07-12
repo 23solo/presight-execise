@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { User } from '../../types/api'
 import { NationalityFlag } from './NationalityFlag'
-import { getUserDisplayName } from './utils'
+import { getUserDisplayName, getUserInitials } from './utils'
 
 type UserCardProps = {
   user: User
@@ -9,6 +9,50 @@ type UserCardProps = {
 
 const VISIBLE_HOBBY_COUNT = 2
 const HOVER_CLOSE_DELAY_MS = 120
+
+function UserAvatar({ user }: { user: User }) {
+  const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
+  const initials = getUserInitials(user)
+
+  useEffect(() => {
+    setStatus('loading')
+  }, [user.avatar])
+
+  const handleImageRef = (image: HTMLImageElement | null) => {
+    if (image?.complete && image.naturalWidth > 0) {
+      setStatus('loaded')
+    }
+  }
+
+  return (
+    <div className="avatar-wrap">
+      <div
+        className={`avatar-fallback${status === 'loaded' ? ' is-hidden' : ''}`}
+        aria-hidden="true"
+      >
+        {initials}
+      </div>
+      {status !== 'error' ? (
+        <img
+          ref={handleImageRef}
+          className={`avatar-image${status === 'loaded' ? ' is-loaded' : ''}`}
+          src={user.avatar}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width={54}
+          height={54}
+          onLoad={() => setStatus('loaded')}
+          onError={() => setStatus('error')}
+        />
+      ) : null}
+      <NationalityFlag
+        nationality={user.nationality}
+        className="avatar-flag"
+      />
+    </div>
+  )
+}
 
 function HobbyOverflowPopover({ hobbies }: { hobbies: string[] }) {
   const [open, setOpen] = useState(false)
@@ -71,20 +115,7 @@ export function UserCard({ user }: UserCardProps) {
   return (
     <article className="ucard">
       <div className="top">
-        <div className="avatar-wrap">
-          <img
-            className="avatar-image"
-            src={user.avatar}
-            alt=""
-            loading="lazy"
-            width={54}
-            height={54}
-          />
-          <NationalityFlag
-            nationality={user.nationality}
-            className="avatar-flag"
-          />
-        </div>
+        <UserAvatar user={user} />
         <div className="ucard-details">
           <div className="name">{getUserDisplayName(user)}</div>
           <div className="profession">{user.profession}</div>
