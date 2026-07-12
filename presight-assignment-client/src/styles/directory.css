@@ -1387,10 +1387,18 @@
   top: 0;
   left: 0;
   width: 100%;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 3), minmax(0, 1fr));
   gap: 16px;
+  align-content: start;
+  align-items: stretch;
   padding-top: 10px;
+  overflow: hidden;
+}
+
+.virtual-row .ucard {
+  height: 100%;
 }
 
 .virtual-list-item {
@@ -1534,6 +1542,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-height: 28px;
+  margin-top: auto;
 }
 
 .hobby-chip {

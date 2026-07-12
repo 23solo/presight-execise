@@ -15,7 +15,7 @@ type UserListProps = {
   columns?: 1 | 2 | 3
 }
 
-const ROW_HEIGHT = 204
+const ROW_HEIGHT = 168
 const INITIAL_SKELETON_COUNT = 4
 
 function LoadingSkeletons({ columns }: { columns: number }) {
@@ -126,14 +126,10 @@ function GridUserList({
 
     scrollElement.scrollTop = 0
     virtualizer.scrollToOffset(0)
-    virtualizer.measure()
     // Remounted via filter key from PeoplePage; only reset once per list instance.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only reset
   }, [scrollElement])
 
-  useLayoutEffect(() => {
-    virtualizer.measure()
-  }, [virtualizer, rowCount, users.length])
   useInfiniteScroll({
     scrollElement,
     sentinelRef,
@@ -155,7 +151,7 @@ function GridUserList({
       <div
         className="virtual-grid"
         style={{
-          height: `${Math.max(virtualizer.getTotalSize(), rowCount * ROW_HEIGHT)}px`,
+          height: `${virtualizer.getTotalSize()}px`,
         }}
       >
         {virtualItems.map((virtualRow) => {
@@ -167,8 +163,8 @@ function GridUserList({
               className="virtual-row"
               key={virtualRow.key}
               data-index={virtualRow.index}
-              ref={virtualizer.measureElement}
               style={{
+                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
