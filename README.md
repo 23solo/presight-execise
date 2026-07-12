@@ -1,6 +1,17 @@
+<h1 align="center">User Directory</h1>
+
+<p align="center">
+  <strong>Live demo</strong><br />
+  <a href="https://assignment.devempire.in/"><strong>https://assignment.devempire.in/</strong></a>
+</p>
+
+<p align="center">Open the link above to try the app.</p>
+
+---
+
 # Setup & local development
 
-How to run this User Directory implementation.
+How to run this User Directory implementation locally.
 
 > **Database:** **PostgreSQL** is used instead of SQLite (same schema ideas, Docker-friendly).  
 > The original assignment brief is below.
